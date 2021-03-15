@@ -1,5 +1,5 @@
 {
-  "name": "project-name",
+  "name": "webnative-filecoin",
   "version": "0.0.0",
   "description": "",
   "keywords": [],
@@ -9,7 +9,7 @@
   "files": [
     "dist"
   ],
-  "author": "Author <author@fission.codes>",
+  "author": "Daniel Holmgren <daniel@fission.codes>",
   "repository": {
     "type": "git",
     "url": ""
@@ -21,7 +21,7 @@
   "scripts": {
     "lint": "yarn eslint src/**/*.ts test/**/*.ts",
     "prebuild": "rimraf dist",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
     "start": "rollup -c rollup.config.ts -w",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
@@ -50,14 +50,6 @@
       "/node_modules/",
       "/test/"
     ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 90,
-        "functions": 95,
-        "lines": 95,
-        "statements": 95
-      }
-    },
     "collectCoverageFrom": [
       "src/*.{js,ts}"
     ]
@@ -91,5 +83,12 @@
     "ts-node": "^8.6.2",
     "typedoc": "^0.16.10",
     "typescript": "^3.8.2"
+  },
+  "dependencies": {
+    "@glif/filecoin-address": "^1.1.0-beta.18",
+    "@zondax/filecoin-signing-tools": "^0.13.0",
+    "axios": "^0.21.1",
+    "noble-bls12-381": "^0.9.0",
+    "webnative": "^0.21.4"
   }
 }

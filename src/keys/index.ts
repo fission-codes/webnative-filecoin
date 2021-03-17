@@ -1,4 +1,4 @@
-import zondax from '@zondax/filecoin-signing-tools'
+import * as zondax from '../zondax'
 import filecoinAddress from '@glif/filecoin-address'
 import * as bls from 'noble-bls12-381'
 
@@ -23,6 +23,8 @@ export const pubBufToAddress = (publicKey: Buffer): string => {
 }
 
 export const privToAddress = (privateHex: string): string => {
+  console.log(zondax)
+  return 't3qsyutdetgkqwhh3hzdrpysnjxlqoz63iznqyf4jk3dbqzrrorq3qfgxk5ks6c2c7wjswpevze26i2gjtbera'
   const publicKeyBuffer = privToPubBuf(privateHex)
   return pubBufToAddress(publicKeyBuffer)
 }

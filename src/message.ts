@@ -14,8 +14,7 @@ export type MessageBody = {
   GasPremium: string
   Method: number
   Params: string
-  CID: CIDObj
-
+  CID?: CIDObj
 }
 
 export type Signature = {

@@ -1,3 +1,5 @@
+import * as keys from '../keys'
+import * as client from '../client'
 // API (for phase 2 stuff)
 // -----------------------
 // - Get Wallet
@@ -17,7 +19,8 @@
 export enum Network {
   Main = 'f',
   Nerpa = 't',
-};
+}
+
 export type Receipt = {
   from: Address
   to: Address
@@ -53,6 +56,26 @@ export default class Wallet {
     this.balance = balance
     this.providerBalance = providerBalance
     this.receipts = receipts
+  }
+
+  static async create(privKey: string): Promise<Wallet> {
+    const address = keys.privToAddress(privKey)
+    const [providerAddress, balance] = await Promise.all([
+      client.getProviderAddress(),
+      client.getBalance(address)
+    ])
+    const providerBalance = 50
+    const receipts = [] as Receipt[]
+
+    return new Wallet({
+      privKey,
+      address,
+      providerAddress,
+      balance,
+      providerBalance,
+      receipts
+    })
+
   }
 
   getAddress(): string {

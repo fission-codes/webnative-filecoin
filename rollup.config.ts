@@ -5,8 +5,9 @@ import json from '@rollup/plugin-json'
 import inject from '@rollup/plugin-inject'
 import polyfills from 'rollup-plugin-node-polyfills'
 import typescript from 'rollup-plugin-typescript2'
-import copy from 'rollup-plugin-copy'
-import { wasm } from '@rollup/plugin-wasm'
+import { terser } from "rollup-plugin-terser"
+import gzipPlugin from 'rollup-plugin-gzip'
+
 
 // Require understands JSON files.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -24,9 +25,6 @@ const context = 'null'
 const external = []
 
 const plugins = [
-  // import WASM modules
-  wasm(),
-
   // Allow json resolution
   json(),
 
@@ -34,14 +32,14 @@ const plugins = [
   typescript({ useTsconfigDeclarationDir: true }),
 
   // Node modules resolution
-  // nodeResolve({ browser: true, preferBuiltins: false, extensions: ['.js', '.ts', '.wasm'] }),
-  nodeResolve({ browser: true, preferBuiltins: false, extensions: ['.js', '.ts'] }),
+  nodeResolve({ browser: true, preferBuiltins: false }),
+  // nodeResolve({ browser: true, preferBuiltins: false, extensions: ['.js', '.ts'] }),
 
   // // Let's transpile our own ES6 code into ES5
   babel({ babelHelpers: "bundled", exclude: 'node_modules/**' }),
 
   // Most packages in node_modules are legacy CommonJS, so let's convert them to ES
-  commonjs(),
+  commonjs({ }),
 
   inject({
     Buffer: ['buffer/', 'Buffer']
@@ -49,37 +47,34 @@ const plugins = [
 
   // Polyfills for node builtins/globals
   polyfills(),
-  copy({
-    targets: [{ src: 'src/zondax/filecoin_signer_wasm_bg.wasm', dest: 'dist/zondax/' }]
-  })
 ]
 
 // browser-friendly UMD build
-// const configUMD = {
-//   input,
-//   output: {
-//     name,
-//     file: pkg.browser,
-//     format: 'umd',
-//     sourcemap: true
-//   },
-//   plugins,
-//   external,
-//   context
-// }
+const configUMD = {
+  input,
+  output: {
+    name,
+    file: pkg.browser,
+    format: 'umd',
+    sourcemap: true
+  },
+  plugins,
+  external,
+  context
+}
 
-// const configUMDMinified = {
-//   input,
-//   output: {
-//     name,
-//     file: pkg.browser.replace(".js", ".min.js"),
-//     format: 'umd',
-//     sourcemap: true
-//   },
-//   plugins: [...plugins, terser(), gzipPlugin()],
-//   external,
-//   context
-// }
+const configUMDMinified = {
+  input,
+  output: {
+    name,
+    file: pkg.browser.replace(".js", ".min.js"),
+    format: 'umd',
+    sourcemap: true
+  },
+  plugins: [...plugins, terser(), gzipPlugin()],
+  external,
+  context
+}
 
 // CommonJS (for Node) and ES module (for bundlers) build.
 // (We could have three entries in the configuration array
@@ -106,5 +101,4 @@ const configCjsAndEs = {
   context,
 }
 
-// export default [configUMD, configUMDMinified, configCjsAndEs]
-export default [configCjsAndEs]
+export default [configUMD, configUMDMinified, configCjsAndEs]

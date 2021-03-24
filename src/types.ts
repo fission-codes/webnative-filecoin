@@ -1,3 +1,10 @@
+export type Address = string
+
+export type WalletInfo = {
+  address: string
+  balance: number 
+}
+
 export type Message = {
   Message: MessageBody
   Signature: Signature

@@ -1,5 +1,6 @@
 import * as keys from '../keys'
 import * as client from '../client'
+import { MessageBody } from '../types'
 
 export enum Network {
   Main = 'f',
@@ -84,7 +85,7 @@ export default class Wallet {
     return this.providerBalance
   }
 
-  async formatMessage(amount: number, address: string): Promise<any> {
+  async formatMessage(amount: number, address: string): Promise<MessageBody> {
     return client.formatMessage(address, this.pubKey, amount)
   }
 

@@ -1,23 +1,12 @@
-// API (for phase 2 stuff)
-// -----------------------
-// - Get Wallet
-// - Send
-//   + From wallet to lotus node
-//   + Probably just amount and address of wallet managed by Lotus node?
-// - Balances
-//   + Wallet in app
-//   + Wallet managed by Lotus node
-// 
-// Parts:
-// keychain
-// UCANs
-// lotus node
-
+import * as keys from '../keys'
+import * as client from '../client'
+import { MessageBody } from '../types'
 
 export enum Network {
   Main = 'f',
   Nerpa = 't',
-};
+}
+
 export type Receipt = {
   from: Address
   to: Address
@@ -30,6 +19,7 @@ export type Address = string
 
 type ConstructorParams = {
   privKey: string
+  pubKey: string
   address: string
   providerAddress: string
   balance: number
@@ -40,19 +30,43 @@ type ConstructorParams = {
 export default class Wallet {
 
   private privKey: string
+  pubKey: string
   address: string
   providerAddress: string
   balance: number
   providerBalance: number
   receipts: Receipt[]
 
-  constructor({ privKey, address, providerAddress, balance, providerBalance, receipts }: ConstructorParams) {
+  constructor({ privKey, pubKey, address, providerAddress, balance, providerBalance, receipts }: ConstructorParams) {
     this.privKey = privKey
+    this.pubKey = pubKey
     this.address = address
     this.providerAddress = providerAddress
     this.balance = balance
     this.providerBalance = providerBalance
     this.receipts = receipts
+  }
+
+  static async create(privKey: string): Promise<Wallet> {
+    const pubKey = keys.privToPub(privKey)
+    const [providerAddress, wallet] = await Promise.all([
+      client.getProviderAddress(),
+      client.getWalletInfo(pubKey)
+    ])
+    const { address, balance } = wallet
+    const providerBalance = 50
+    const receipts = [] as Receipt[]
+
+    return new Wallet({
+      privKey,
+      pubKey,
+      address,
+      providerAddress,
+      balance,
+      providerBalance,
+      receipts
+    })
+
   }
 
   getAddress(): string {
@@ -71,21 +85,28 @@ export default class Wallet {
     return this.providerBalance
   }
 
-  async fundProvider(amount: number):  Promise<Receipt> {
-    if(amount > this.balance) {
-      throw new Error("Insufficient funds")
-    }
-    this.balance -= amount
-    this.providerBalance += amount
+  async formatMessage(amount: number, address: string): Promise<MessageBody> {
+    return client.formatMessage(address, this.pubKey, amount)
+  }
+
+  async send(amount: number, address: string): Promise<Receipt> {
+    const msg = await this.formatMessage(amount, address)
+    const signed = await keys.signLotusMessage(msg, this.privKey)
+    const resp = await client.cosignMessage(signed)
+    console.log('RESP: ', resp)
     const receipt = {
       from: this.address,
-      to: this.providerAddress,
+      to: address,
       amount: amount,
       time: Date.now(),
       blockheight: 311330
     }
     this.receipts.push(receipt)
     return receipt 
+  }
+
+  async fundProvider(amount: number):  Promise<Receipt> {
+    return this.send(amount, this.providerAddress)
   }
 
   async getPrevReceipts(): Promise<Receipt[]> {

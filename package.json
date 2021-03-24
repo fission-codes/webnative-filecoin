@@ -3,11 +3,15 @@
   "version": "0.0.0",
   "description": "",
   "keywords": [],
-  "main": "dist/index.umd.js",
+  "main": "dist/index.cjs.js",
   "module": "dist/index.es5.js",
+  "browser": "dist/index.umd.js",
   "typings": "dist/types/index.d.ts",
   "files": [
     "dist"
+  ],
+  "browserslist": [
+    "last 2 Chrome versions"
   ],
   "author": "Daniel Holmgren <daniel@fission.codes>",
   "repository": {
@@ -21,8 +25,8 @@
   "scripts": {
     "lint": "yarn eslint src/**/*.ts test/**/*.ts",
     "prebuild": "rimraf dist",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
-    "start": "rollup -c rollup.config.ts -w",
+    "build": "parcel src/index.ts",
+    "dev": "parcel watch src/index.ts",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
     "test:prod": "npm run lint && npm run test -- --no-cache",
@@ -68,16 +72,11 @@
     "jest": "^25.1.0",
     "jest-config": "^25.1.0",
     "lint-staged": "^10.0.7",
+    "parcel-bundler": "^1.12.5",
     "prettier": "^1.19.1",
     "prompt": "^1.0.0",
     "replace-in-file": "^5.0.2",
     "rimraf": "^3.0.2",
-    "rollup": "^1.31.1",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-sourcemaps": "^0.5.0",
-    "rollup-plugin-typescript2": "^0.26.0",
     "travis-deploy-once": "^5.0.11",
     "ts-jest": "^25.2.1",
     "ts-node": "^8.6.2",
@@ -86,8 +85,8 @@
   },
   "dependencies": {
     "@glif/filecoin-address": "^1.1.0-beta.18",
-    "@zondax/filecoin-signing-tools": "^0.13.0",
     "axios": "^0.21.1",
+    "fission-filecoin-signing-tools": "^0.2.0",
     "noble-bls12-381": "^0.9.0",
     "webnative": "^0.21.4"
   }

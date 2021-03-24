@@ -1,20 +1,49 @@
-import zondax from '@zondax/filecoin-signing-tools'
 import filecoinAddress from '@glif/filecoin-address'
+import * as filTools from 'fission-filecoin-signing-tools'
 import * as bls from 'noble-bls12-381'
+import { Message, MessageBody } from '../types'
+
+export const normalizeToHex = (
+  hexOrBuf: string | Buffer | Uint8Array
+): string => {
+  if (typeof hexOrBuf === 'string') return hexOrBuf
+  return hexOrBuf.toString('hex')
+}
 
 export const hexToBase64 = (hex: string): string => {
   return Buffer.from(hex, 'hex').toString('base64')
 }
 
+export const signLotusMessage = async (
+  message: MessageBody,
+  key: string
+): Promise<Message> => {
+  const serialized = filTools.transactionSerializeRaw(message)
+  const digest = filTools.getCID(serialized)
+  const sigBuf = await bls.sign(digest, key)
+  const sig = Buffer.from(sigBuf).toString('base64')
+  return {
+    Message: message,
+    Signature: {
+      Data: sig,
+      Type: 2,
+    },
+  }
+}
+
 export const privToPub = (privateHex: string): string => {
-  const privateB64 = hexToBase64(privateHex)
-  const key = zondax.keyRecoverBLS(privateB64, true)
-  return key.public_hexstring
+  const publicKey = bls.getPublicKey(privateHex)
+  return normalizeToHex(publicKey)
 }
 
 export const privToPubBuf = (privateHex: string): Buffer => {
   const pubkey = privToPub(privateHex)
   return Buffer.from(pubkey, 'hex')
+}
+
+export const pubToAddress = (publicHex: string): string => {
+  const pubBuf = Buffer.from(publicHex, 'hex')
+  return pubBufToAddress(pubBuf)
 }
 
 export const pubBufToAddress = (publicKey: Buffer): string => {

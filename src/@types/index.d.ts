@@ -1,1 +1,1 @@
-declare module '@zondax/filecoin-signing-tools'
+declare module 'fission-filecoin-signing-tools'

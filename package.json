@@ -1,9 +1,10 @@
 {
   "name": "webnative-filecoin",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "",
   "keywords": [],
   "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
   "browser": "dist/index.umd.js",
   "typings": "dist/index.d.ts",
   "files": [

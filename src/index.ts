@@ -1,6 +1,20 @@
 import Wallet from './wallet'
+import * as keys from './keys'
+import * as util from './util'
+import * as types from './types'
 
-export const getWallet = async (): Promise<Wallet> => {
-  const privKey = '3cf423b87b7fd25e1d252565e6a397f4712cc61750073fadc25ee738ff8c9055'
+export * from './keys'
+export * from './util'
+export * from './types'
+
+export const getWallet = async (privKey: string): Promise<Wallet> => {
   return Wallet.create(privKey)
+}
+
+export default {
+  ...util,
+  ...keys,
+  ...types,
+  getWallet, 
+  Wallet
 }

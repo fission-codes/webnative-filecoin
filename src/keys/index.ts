@@ -1,7 +1,7 @@
 import filecoinAddress from '@glif/filecoin-address'
 import * as filTools from 'fission-filecoin-signing-tools'
 import * as bls from 'noble-bls12-381'
-import { Message, MessageBody } from '../types'
+import { SignedMessage, MessageBody } from '../types'
 
 export const normalizeToHex = (
   hexOrBuf: string | Buffer | Uint8Array
@@ -17,7 +17,7 @@ export const hexToBase64 = (hex: string): string => {
 export const signLotusMessage = async (
   message: MessageBody,
   key: string
-): Promise<Message> => {
+): Promise<SignedMessage> => {
   const serialized = filTools.transactionSerializeRaw(message)
   const digest = filTools.getCID(serialized)
   const sigBuf = await bls.sign(digest, key)

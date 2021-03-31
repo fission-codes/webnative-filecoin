@@ -42,7 +42,6 @@ export default class Wallet {
     const { address, balance } = wallet
     const providerBalance = 50
     const transactions = await client.getPastReciepts(pubKey)
-    console.log('TXS: ', transactions)
     const receipts = [] as Receipt[]
 
     return new Wallet({
@@ -78,7 +77,6 @@ export default class Wallet {
 
   async send(amount: number, address: string): Promise<CID> {
     const msg = await this.formatMessage(amount, address)
-    console.log('MSG: ', msg)
     const signed = await keys.signLotusMessage(msg, this.privKey)
     const resp = await client.cosignMessage(signed)
     return resp

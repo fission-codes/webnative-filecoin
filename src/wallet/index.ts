@@ -1,21 +1,7 @@
 import * as keys from '../keys'
 import * as client from '../client'
-import { MessageBody } from '../types'
-
-export enum Network {
-  Main = 'f',
-  Nerpa = 't',
-}
-
-export type Receipt = {
-  from: Address
-  to: Address
-  amount: number
-  time: number
-  blockheight: number
-}
-
-export type Address = string
+import { Receipt, MessageBody } from '../types'
+import { CID } from 'webnative/ipfs'
 
 type ConstructorParams = {
   privKey: string
@@ -51,10 +37,12 @@ export default class Wallet {
     const pubKey = keys.privToPub(privKey)
     const [providerAddress, wallet] = await Promise.all([
       client.getProviderAddress(),
-      client.getWalletInfo(pubKey)
+      client.getOrCreateWallet(pubKey)
     ])
     const { address, balance } = wallet
     const providerBalance = 50
+    const transactions = await client.getPastReciepts(pubKey)
+    console.log('TXS: ', transactions)
     const receipts = [] as Receipt[]
 
     return new Wallet({
@@ -66,7 +54,6 @@ export default class Wallet {
       providerBalance,
       receipts
     })
-
   }
 
   getAddress(): string {
@@ -89,27 +76,23 @@ export default class Wallet {
     return client.formatMessage(address, this.pubKey, amount)
   }
 
-  async send(amount: number, address: string): Promise<Receipt> {
+  async send(amount: number, address: string): Promise<CID> {
     const msg = await this.formatMessage(amount, address)
+    console.log('MSG: ', msg)
     const signed = await keys.signLotusMessage(msg, this.privKey)
     const resp = await client.cosignMessage(signed)
-    console.log('RESP: ', resp)
-    const receipt = {
-      from: this.address,
-      to: address,
-      amount: amount,
-      time: Date.now(),
-      blockheight: 311330
-    }
-    this.receipts.push(receipt)
-    return receipt 
+    return resp
   }
 
-  async fundProvider(amount: number):  Promise<Receipt> {
+  async fundProvider(amount: number):  Promise<CID> {
     return this.send(amount, this.providerAddress)
   }
 
   async getPrevReceipts(): Promise<Receipt[]> {
     return this.receipts
+  }
+
+  async waitForReceipt(messageId: string): Promise<Receipt> {
+    return client.waitForReceipt(messageId)
   }
 }

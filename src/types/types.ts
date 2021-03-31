@@ -5,7 +5,7 @@ export type WalletInfo = {
   balance: number 
 }
 
-export type Message = {
+export type SignedMessage = {
   Message: MessageBody
   Signature: Signature
 }
@@ -31,4 +31,20 @@ export type Signature = {
 
 export type CIDObj = {
   "/": string
+}
+
+export enum MessageStatus {
+  Sent = 0,
+  Partial = 1,
+  Verified = 2,
+}
+
+export type Receipt = {
+  messageId: string
+  from: Address
+  to: Address
+  amount: number
+  time: number
+  blockheight: number
+  status: MessageStatus
 }

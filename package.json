@@ -1,12 +1,11 @@
 {
   "name": "webnative-filecoin",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "description": "",
   "keywords": [],
   "main": "dist/index.cjs.js",
-  "module": "dist/index.es5.js",
   "browser": "dist/index.umd.js",
-  "typings": "dist/types/index.d.ts",
+  "typings": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -25,7 +24,10 @@
   "scripts": {
     "lint": "yarn eslint src/**/*.ts test/**/*.ts",
     "prebuild": "rimraf dist",
-    "build": "parcel src/index.ts",
+    "build": "NODE_ENV=production yarn build-tsc && yarn build-node && yarn build-browser",
+    "build-tsc": "tsc",
+    "build-browser": "parcel src/index.ts --target browser --out-file index.umd.js",
+    "build-node": "parcel build src/index.ts --target node --out-file index.cjs.js",
     "dev": "parcel watch src/index.ts",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",

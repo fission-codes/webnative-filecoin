@@ -142,19 +142,31 @@ const addressAsBytes = (address: string): Buffer => {
   return bytesAddress;
 }
 
+const getChecksum = (payload: Buffer): Buffer => {
+  const blakeCtx = blake.blake2bInit(4);
+  blake.blake2bUpdate(blakeCtx, payload);
+  return Buffer.from(blake.blake2bFinal(blakeCtx));
+}
+
+const serializeBigNum = (gasprice: string): Buffer => {
+  if (gasprice == "0") {
+    return Buffer.from("");
+  }
+  const gaspriceBigInt = new BN(gasprice, 10);
+  const gaspriceBuffer = gaspriceBigInt.toArrayLike(
+    Buffer,
+    "be",
+    gaspriceBigInt.byteLength()
+  );
+  return Buffer.concat([Buffer.from("00", "hex"), gaspriceBuffer]);
+}
+
 const ProtocolIndicator = {
   ID: 0,
   SECP256K1: 1,
   ACTOR: 2,
   BLS: 3,
 };
-
-
-const getChecksum = (payload: Buffer): Buffer => {
-  const blakeCtx = blake.blake2bInit(4);
-  blake.blake2bUpdate(blakeCtx, payload);
-  return Buffer.from(blake.blake2bFinal(blakeCtx));
-}
 
 class UnknownProtocolIndicator extends Error {
   constructor() {
@@ -177,19 +189,6 @@ class InvalidChecksumAddress extends Error {
   }
 }
 
-
-const serializeBigNum = (gasprice: string): Buffer => {
-  if (gasprice == "0") {
-    return Buffer.from("");
-  }
-  const gaspriceBigInt = new BN(gasprice, 10);
-  const gaspriceBuffer = gaspriceBigInt.toArrayLike(
-    Buffer,
-    "be",
-    gaspriceBigInt.byteLength()
-  );
-  return Buffer.concat([Buffer.from("00", "hex"), gaspriceBuffer]);
-}
 
 
 

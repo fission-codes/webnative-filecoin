@@ -59,6 +59,10 @@ const plugins = [
   polyfills(),
 ]
 
+const pluginsNode = plugins.slice(0, 3)
+  .concat([ nodeResolve({ browser: false, preferBuiltins: true })])
+  .concat(plugins.slice(4))
+
 const onwarn = (warning, next) => {
   // ignore warnings from circular dependencies in readable-stream
   // if ( warning.code === 'CIRCULAR_DEPENDENCY' &&
@@ -116,7 +120,7 @@ const configCjsAndEs = {
       sourcemap: true
     }
   ],
-  plugins,
+  plugins: pluginsNode,
   external,
   context,
   onwarn

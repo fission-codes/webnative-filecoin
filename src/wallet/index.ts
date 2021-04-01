@@ -13,7 +13,7 @@ type ConstructorParams = {
   receipts: Receipt[]
 }
 
-export default class Wallet {
+export class Wallet {
 
   private privKey: string
   pubKey: string
@@ -87,10 +87,12 @@ export default class Wallet {
   }
 
   async getPrevReceipts(): Promise<Receipt[]> {
-    return this.receipts
+    return client.getPastReciepts(this.pubKey)
   }
 
   async waitForReceipt(messageId: string): Promise<Receipt> {
     return client.waitForReceipt(messageId)
   }
 }
+
+export default Wallet

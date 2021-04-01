@@ -1,5 +1,5 @@
 import filecoinAddress from '@glif/filecoin-address'
-import * as filTools from 'fission-filecoin-signing-tools'
+import * as filTools from './serialization'
 import * as bls from 'noble-bls12-381'
 import { SignedMessage, MessageBody } from '../types'
 

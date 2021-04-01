@@ -8,6 +8,7 @@ import typescript from 'rollup-plugin-typescript2'
 import { terser } from "rollup-plugin-terser"
 import gzipPlugin from 'rollup-plugin-gzip'
 import replace from '@rollup/plugin-replace'
+import injectProcessEnv from 'rollup-plugin-inject-process-env'
 
 // Require understands JSON files.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -46,13 +47,16 @@ const plugins = [
 
   // // Let's transpile our own ES6 code into ES5
   babel({ babelHelpers: "bundled", exclude: 'node_modules/**' }),
-  // babel({ babelHelpers: "bundled" }),
 
   // Most packages in node_modules are legacy CommonJS, so let's convert them to ES
   commonjs(),
 
   inject({
     Buffer: ['buffer/', 'Buffer']
+  }),
+
+  injectProcessEnv({
+    NODE_ENV: process.env.NODE_ENV || 'production'
   }),
 
   // Polyfills for node builtins/globals

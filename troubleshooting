@@ -1,6 +1,0 @@
-- parcel 
-  - `--bundle-node-modules`
-    - parcelRequire is not declare (when you manually declare than 'global is undefined')
-    - without `--no-minify` then noble-bls12-381 does not compile when running 'build' only when running 'watch'
-  
-PARCEL IS FUCKED, SWITCH TO ROLLUP

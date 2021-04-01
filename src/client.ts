@@ -2,8 +2,9 @@ import axios from 'axios'
 import { CID } from 'webnative/ipfs'
 import { Address, SignedMessage, MessageBody, WalletInfo, Receipt } from './types'
 
-// const API_URL = process.env.COSIGNER_API || 'https://cosigner.runfission.com/api/v1/filecoin'
-const API_URL = 'https://cosigner.runfission.com/api/v1/filecoin'
+const API_URL = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:3000/api/v1/filecoin'
+  : 'https://cosigner.runfission.com/api/v1/filecoin'
 
 export const cosignMessage = async (message: SignedMessage): Promise<CID> => {
   const resp = await axios.post(`${API_URL}/message`, { message })

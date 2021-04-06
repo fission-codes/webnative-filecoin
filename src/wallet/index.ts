@@ -1,7 +1,9 @@
 import * as keys from '../keys'
 import * as client from '../client'
-import { Receipt, MessageBody } from '../types'
+import { Receipt, MessageBody, MessageStatus } from '../types'
+import { keyBy } from 'lodash'
 import { CID } from 'webnative/ipfs'
+import * as util from '../util'
 
 type ConstructorParams = {
   privKey: string
@@ -10,7 +12,8 @@ type ConstructorParams = {
   providerAddress: string
   balance: number
   providerBalance: number
-  receipts: Receipt[]
+  blockheight: number
+  receipts: { [cid: string]: Receipt }
 }
 
 export class Wallet {
@@ -21,38 +24,46 @@ export class Wallet {
   providerAddress: string
   balance: number
   providerBalance: number
-  receipts: Receipt[]
+  blockheight: number
+  receipts: { [cid: string]: Receipt }
 
-  constructor({ privKey, pubKey, address, providerAddress, balance, providerBalance, receipts }: ConstructorParams) {
+  constructor({ privKey, pubKey, address, providerAddress, balance, providerBalance, blockheight, receipts }: ConstructorParams) {
     this.privKey = privKey
     this.pubKey = pubKey
     this.address = address
     this.providerAddress = providerAddress
     this.balance = balance
     this.providerBalance = providerBalance
+    this.blockheight = blockheight
     this.receipts = receipts
   }
 
   static async create(privKey: string): Promise<Wallet> {
     const pubKey = keys.privToPub(privKey)
-    const [providerAddress, wallet] = await Promise.all([
+    const [providerAddress, walletInfo] = await Promise.all([
       client.getProviderAddress(),
       client.getOrCreateWallet(pubKey)
     ])
-    const { address, balance } = wallet
-    const providerBalance = 50
-    const transactions = await client.getPastReciepts(pubKey)
-    const receipts = [] as Receipt[]
+    const { address, balance, providerBalance } = walletInfo
+    const receiptsList = await client.getPastReciepts(pubKey)
+    const receipts = keyBy(receiptsList, 'messageId')
 
-    return new Wallet({
+    const blockheight = await client.getBlockHeight()
+
+    const wallet = new Wallet({
       privKey,
       pubKey,
       address,
       providerAddress,
       balance,
       providerBalance,
+      blockheight,
       receipts
     })
+
+    wallet.keepBlockHeightInSync()
+
+    return wallet
   }
 
   getAddress(): string {
@@ -64,34 +75,70 @@ export class Wallet {
   }
 
   async getBalance(): Promise<number> {
+    this.balance = await client.getBalance(this.address)
     return this.balance
   }
 
   async getProviderBalance(): Promise<number> {
+    this.providerBalance = await client.getProviderBalance(this.pubKey)
     return this.providerBalance
   }
 
   async formatMessage(amount: number, address: string): Promise<MessageBody> {
+    if(amount > this.balance) throw new Error("Not enough funds")
     return client.formatMessage(address, this.pubKey, amount)
   }
 
-  async send(amount: number, address: string): Promise<CID> {
+  async send(amount: number, address: string): Promise<Receipt> {
+    if(amount > this.balance) throw new Error("Not enough funds")
     const msg = await this.formatMessage(amount, address)
     const signed = await keys.signLotusMessage(msg, this.privKey)
-    const resp = await client.cosignMessage(signed)
-    return resp
+    const receipt = await client.cosignMessage(signed)
+    this.receipts[receipt.messageId] = receipt
+    return receipt
   }
 
-  async fundProvider(amount: number):  Promise<CID> {
+  async waitForReceipt(messageId: CID, status = MessageStatus.Partial): Promise<Receipt> {
+    // wait 10s between polling for first confirmation & 2 min for final verification
+    const waitTime = status === MessageStatus.Partial ? 10000 : 120000 
+    const getStatus = async (): Promise<Receipt> => {
+      const receipt = await this.getMessageStatus(messageId)
+      this.receipts[receipt.messageId] = receipt
+      if(receipt.status >= status) {
+        return receipt
+      }
+      await util.wait(waitTime) // wait 10s between polls
+      return getStatus()
+    }
+    return getStatus()
+  }
+
+  async getMessageStatus(messageId: CID): Promise<Receipt> {
+    return client.getMessageStatus(messageId)
+  }
+
+  async fundProvider(amount: number):  Promise<Receipt> {
     return this.send(amount, this.providerAddress)
   }
 
   async getPrevReceipts(): Promise<Receipt[]> {
-    return client.getPastReciepts(this.pubKey)
+    return Object.values(this.receipts).sort(util.mostRecent)
   }
 
-  async waitForReceipt(messageId: string): Promise<Receipt> {
-    return client.waitForReceipt(messageId)
+  keepBlockHeightInSync(): void {
+    //increment every 30s
+    const update = (): void => {
+      this.blockheight++
+      setTimeout(update, 30000)
+    }
+    update()
+
+    // every 5 min, make sure we have the correct number
+    const verify = async (): Promise<void> => {
+      this.blockheight = await client.getBlockHeight()
+      setTimeout(verify, 300000)
+    }
+    verify()
   }
 }
 

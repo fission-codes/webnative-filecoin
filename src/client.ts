@@ -6,7 +6,7 @@ const API_URL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:3000/api/v1/filecoin'
   : 'https://cosigner.runfission.com/api/v1/filecoin'
 
-export const cosignMessage = async (message: SignedMessage): Promise<CID> => {
+export const cosignMessage = async (message: SignedMessage): Promise<Receipt> => {
   const resp = await axios.post(`${API_URL}/message`, { message })
   return resp.data
 }
@@ -28,6 +28,11 @@ export const getWalletInfo = async (publicKey: string): Promise<WalletInfo> => {
 
 export const getProviderAddress = async (): Promise<Address> => {
   const resp = await axios.get(`${API_URL}/provider/address`)
+  return resp.data
+}
+
+export const getProviderBalance = async (pubkey: string): Promise<number> => {
+  const resp = await axios.get(`${API_URL}/provider/balance/${pubkey}`)
   return resp.data
 }
 
@@ -56,7 +61,18 @@ export const waitForReceipt = async (messageId: string): Promise<Receipt> => {
   return resp.data
 }
 
-export const getPastReciepts = async (publicKey: string): Promise<any> => {
+export const getPastReciepts = async (publicKey: string): Promise<Receipt[]> => {
   const resp = await axios.get(`${API_URL}/receipts/${publicKey}`)
   return resp.data
 }
+
+export const getMessageStatus = async (messageId: CID): Promise<Receipt> => {
+  const resp = await axios.get(`${API_URL}/message/${messageId}`)
+  return resp.data
+}
+
+export const getBlockHeight = async (): Promise<number> => {
+  const resp = await axios.get(`${API_URL}/blockheight`)
+  return resp.data.height
+}
+

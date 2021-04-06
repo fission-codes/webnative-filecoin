@@ -84,6 +84,11 @@ export class Wallet {
     return this.providerBalance
   }
 
+  async getBlockHeight(): Promise<number> {
+    this.blockheight = await client.getBlockHeight()
+    return this.blockheight
+  }
+
   async formatMessage(amount: number, address: string): Promise<MessageBody> {
     if(amount > this.balance) throw new Error("Not enough funds")
     return client.formatMessage(address, this.pubKey, amount)
@@ -107,7 +112,7 @@ export class Wallet {
       if(receipt.status >= status) {
         return receipt
       }
-      await util.wait(waitTime) // wait 10s between polls
+      await util.wait(waitTime)
       return getStatus()
     }
     return getStatus()
@@ -121,7 +126,7 @@ export class Wallet {
     return this.send(amount, this.providerAddress)
   }
 
-  async getPrevReceipts(): Promise<Receipt[]> {
+  getPrevReceipts(): Receipt[] {
     return Object.values(this.receipts).sort(util.mostRecent)
   }
 

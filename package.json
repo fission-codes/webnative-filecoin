@@ -101,6 +101,7 @@
   },
   "dependencies": {
     "@glif/filecoin-address": "^1.1.0-beta.18",
+    "@types/lodash": "^4.14.168",
     "axios": "^0.21.1",
     "base32-decode": "^1.0.0",
     "blakejs": "^1.1.0",
@@ -108,6 +109,7 @@
     "buffer": "^6.0.3",
     "ipld-dag-cbor": "^0.18.0",
     "leb128": "^0.0.5",
+    "lodash": "^4.17.21",
     "lowercase-keys": "^2.0.0",
     "noble-bls12-381": "^0.9.0",
     "stream": "^0.0.2",

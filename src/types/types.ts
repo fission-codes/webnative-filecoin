@@ -3,6 +3,7 @@ export type Address = string
 export type WalletInfo = {
   address: string
   balance: number 
+  providerBalance: number
 }
 
 export type SignedMessage = {
@@ -45,6 +46,10 @@ export type Receipt = {
   to: Address
   amount: number
   time: number
-  blockheight: number
+  blockheight: number | null
   status: MessageStatus
+}
+
+export type CompletedReceipt = Receipt & {
+  blockheight: number
 }

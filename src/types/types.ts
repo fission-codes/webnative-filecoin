@@ -53,3 +53,9 @@ export type Receipt = {
 export type CompletedReceipt = Receipt & {
   blockheight: number
 }
+
+export type KeyFile = {
+  privateKey: string
+  publicKey: string
+  type: string
+}

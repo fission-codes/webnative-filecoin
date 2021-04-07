@@ -1,4 +1,4 @@
-import { SignedMessage, MessageBody, Signature } from './types'
+import { SignedMessage, MessageBody, Signature, KeyFile } from './types'
 
 export const isMessageBody = (obj: any): obj is MessageBody => {
   return typeof obj === 'object'
@@ -23,4 +23,10 @@ export const isMessage = (obj: any): obj is SignedMessage => {
   return typeof obj === 'object'
       && isMessageBody(obj.Message)
       && isSignature(obj.Signature)
+}
+
+export const isKeyFile = (obj: any): obj is KeyFile => {
+  return typeof obj === 'object'
+      && typeof obj.key === 'string'
+      && typeof obj.type === 'string'
 }

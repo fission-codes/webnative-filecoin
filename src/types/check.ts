@@ -27,6 +27,7 @@ export const isMessage = (obj: any): obj is SignedMessage => {
 
 export const isKeyFile = (obj: any): obj is KeyFile => {
   return typeof obj === 'object'
-      && typeof obj.key === 'string'
+      && typeof obj.privateKey === 'string'
+      && typeof obj.publicKey === 'string'
       && typeof obj.type === 'string'
 }

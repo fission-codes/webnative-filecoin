@@ -55,6 +55,7 @@ export type CompletedReceipt = Receipt & {
 }
 
 export type KeyFile = {
-  key: string
+  privateKey: string
+  publicKey: string
   type: string
 }

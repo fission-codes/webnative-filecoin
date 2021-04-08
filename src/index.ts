@@ -35,3 +35,7 @@ export const getWallet = async (fs: FileSystem, keyname = DEFAULT_KEY_NAME): Pro
 
   return Wallet.create(keyFile.privateKey)
 }
+
+export const getWalletFromKey = async(key: string): Promise<Wallet> => {
+  return Wallet.create(key)
+}

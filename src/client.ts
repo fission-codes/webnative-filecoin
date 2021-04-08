@@ -33,7 +33,7 @@ export const getProviderAddress = async (): Promise<Address> => {
 
 export const getProviderBalance = async (pubkey: string): Promise<number> => {
   const resp = await axios.get(`${API_URL}/provider/balance/${pubkey}`)
-  return resp.data
+  return resp.data.balance
 }
 
 export const getBalance = async (address: string): Promise<number> => {

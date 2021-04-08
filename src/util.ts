@@ -1,13 +1,35 @@
 import { KeyFile, Receipt } from "./types"
 import * as keys from './keys'
 
+const ATTO_MULTIPLIER = BigInt(1000000000000000)
+const PICO_MULTIPLIER = BigInt(1000000000)
+
 export const filToAttoFil = (amount: number): string => {
-  const attoAmount = BigInt(amount * 1000) * BigInt(1000000000000000)
+  const attoAmount = BigInt(amount * 1000) * ATTO_MULTIPLIER
   return attoAmount.toString()
 }
 
 export const attoFilToFil = (amount: string): number => {
-  return Number(BigInt(amount) / BigInt(1000000000000000)) / 1000
+  return Number(BigInt(amount) / ATTO_MULTIPLIER) / 1000
+}
+
+export const filToPicoFil = (amount: number): string => {
+  const attoAmount = BigInt(amount * 1000) * PICO_MULTIPLIER
+  return attoAmount.toString()
+}
+
+export const picoFilToFil = (amount: string): number => {
+  return Number(BigInt(amount) / PICO_MULTIPLIER) / 1000
+}
+
+export const picoFilToAttoFil = (amount: string): string => {
+  const attoAmount = BigInt(amount) * BigInt(1000000)
+  return attoAmount.toString()
+}
+
+export const attoFilToPicoFil = (amount: string): string => {
+  const picoAmount = BigInt(amount) / BigInt(1000000)
+  return picoAmount.toString()
 }
 
 export const wait = async (time: number): Promise<void> => {

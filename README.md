@@ -1,9 +1,9 @@
 # Webnative Filecoin
 
 [![NPM](https://img.shields.io/npm/v/webnative)](https://www.npmjs.com/package/webnative-filecoin)
-[![Build Status](https://travis-ci.org/fission-suite/webnative.svg?branch=master)](https://travis-ci.org/fission-suite/webnative-filecoin)
+[![Build Status](https://travis-ci.org/fission-suite/webnative-fielcoin.svg?branch=master)](https://travis-ci.org/fission-suite/webnative-filecoin)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/fission-suite/blob/master/LICENSE)
-[![Maintainability](https://api.codeclimate.com/v1/badges/524fbe384bb6c312fa11/maintainability)](https://codeclimate.com/github/fission-suite/webnative-filecoin/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/b06e29f811583d24009a/maintainability)](https://codeclimate.com/github/fission-suite/webnative-filecoin/maintainability)
 [![Built by FISSION](https://img.shields.io/badge/⌘-Built_by_FISSION-purple.svg)](https://fission.codes)
 [![Discord](https://img.shields.io/discord/478735028319158273.svg)](https://discord.gg/zAQBDEq)
 [![Discourse](https://img.shields.io/discourse/https/talk.fission.codes/topics)](https://talk.fission.codes)
@@ -26,7 +26,8 @@ const state = await wn.initialise({
     },
     fs: {
       // make sure to request permission for the keychain path
-      privatePaths:[DEFAULT_KEY_PERMISSION] // Defaults to `private/Keychain/filecoin-backup`
+      privatePaths:[DEFAULT_KEY_PERMISSION] // Defaults to `private/Keychain/fil-cosigner`
+      publicPaths:[]
     }
   }
 })

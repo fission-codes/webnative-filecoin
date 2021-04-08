@@ -89,14 +89,14 @@ export class Wallet {
     return this.blockheight
   }
 
-  async formatMessage(amount: number, address: string): Promise<MessageBody> {
+  async formatMessage(address: string, amount: number): Promise<MessageBody> {
     if(amount > this.balance) throw new Error("Not enough funds")
     return client.formatMessage(address, this.pubKey, amount)
   }
 
-  async send(amount: number, address: string): Promise<Receipt> {
+  async send(address: string, amount: number): Promise<Receipt> {
     if(amount > this.balance) throw new Error("Not enough funds")
-    const msg = await this.formatMessage(amount, address)
+    const msg = await this.formatMessage(address, amount)
     const signed = await keys.signLotusMessage(msg, this.privKey)
     const receipt = await client.cosignMessage(signed)
     this.receipts[receipt.messageId] = receipt
@@ -123,7 +123,7 @@ export class Wallet {
   }
 
   async fundProvider(amount: number):  Promise<Receipt> {
-    return this.send(amount, this.providerAddress)
+    return this.send(this.providerAddress, amount)
   }
 
   getPrevReceipts(): Receipt[] {

@@ -55,9 +55,9 @@ const plugins = [
     Buffer: ['buffer/', 'Buffer']
   }),
 
-  injectProcessEnv({
-    NODE_ENV: process.env.NODE_ENV || 'production'
-  }),
+  // injectProcessEnv({
+  //   NODE_ENV: process.env.NODE_ENV || 'production'
+  // }),
 
   // Polyfills for node builtins/globals
   polyfills(),

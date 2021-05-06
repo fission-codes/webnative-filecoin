@@ -1,9 +1,11 @@
-import * as keys from '../keys'
-import * as client from '../client'
-import { Receipt, MessageBody, MessageStatus } from '../types'
+import * as keys from './keys'
+import * as client from './client'
+import { requestCosignPermissions } from './permissions'
+import { Receipt, MessageBody, MessageStatus } from './types'
 import { keyBy } from 'lodash'
-import { CID } from 'webnative/ipfs'
-import * as util from '../util'
+import { CID } from 'webnative/dist/ipfs'
+import * as setup from './setup'
+import * as util from './util'
 
 type ConstructorParams = {
   privKey: string
@@ -14,6 +16,7 @@ type ConstructorParams = {
   providerBalance: number
   blockheight: number
   receipts: { [cid: string]: Receipt }
+  ucan: string | null
 }
 
 export class Wallet {
@@ -26,8 +29,9 @@ export class Wallet {
   providerBalance: number
   blockheight: number
   receipts: { [cid: string]: Receipt }
+  ucan: string | null
 
-  constructor({ privKey, pubKey, address, providerAddress, balance, providerBalance, blockheight, receipts }: ConstructorParams) {
+  constructor({ privKey, pubKey, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
     this.privKey = privKey
     this.pubKey = pubKey
     this.address = address
@@ -36,15 +40,25 @@ export class Wallet {
     this.providerBalance = providerBalance
     this.blockheight = blockheight
     this.receipts = receipts
+    this.ucan = ucan
   }
 
-  static async create(privKey: string): Promise<Wallet> {
+  static async create(privKey: string, requestPermission = true): Promise<Wallet> {
     const pubKey = keys.privToPub(privKey)
     const [providerAddress, walletInfo] = await Promise.all([
       client.getProviderAddress(),
       client.getOrCreateWallet(pubKey)
     ])
     const { address, balance, providerBalance } = walletInfo
+
+    let ucan = null
+    if(requestPermission) {
+      await requestCosignPermissions(address)
+      const dict = setup.getWebnative().ucanInternal.getDictionary()
+      ucan = dict[`cosign:${address}`] || null
+    }
+
+
     const receiptsList = await client.getPastReciepts(pubKey)
     const receipts = keyBy(receiptsList, 'messageId')
 
@@ -58,10 +72,12 @@ export class Wallet {
       balance,
       providerBalance,
       blockheight,
-      receipts
+      receipts,
+      ucan
     })
 
     wallet.keepBlockHeightInSync()
+
 
     return wallet
   }
@@ -96,9 +112,10 @@ export class Wallet {
 
   async send(address: string, amount: number): Promise<Receipt> {
     if(amount > this.balance) throw new Error("Not enough funds")
+    if(this.ucan === null) throw new Error("No valid ucan, request permission first")
     const msg = await this.formatMessage(address, amount)
     const signed = await keys.signLotusMessage(msg, this.privKey)
-    const receipt = await client.cosignMessage(signed)
+    const receipt = await client.cosignMessage(signed, this.ucan)
     this.receipts[receipt.messageId] = receipt
     return receipt
   }

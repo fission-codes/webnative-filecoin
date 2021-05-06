@@ -1,21 +1,27 @@
 import Wallet from './wallet'
-import FileSystem from 'webnative/fs'
+import * as wn from 'webnative'
+import FileSystem from 'webnative/dist/fs'
 import { genKeyFile } from './util'
 import { DEFAULT_KEY_NAME } from './constants'
 import { isKeyFile } from './types'
 
 export * from './wallet'
+export * from './permissions'
 export * from './keys'
 export * from './util'
 export * from './types'
 export * from './constants'
+export * as setup from './setup'
 
 export const getWallet = async (fs: FileSystem, keyname = DEFAULT_KEY_NAME): Promise<Wallet> => {
-  const path = `private/Keychain/${keyname}/key.json`
+  const path = wn.path.file('private', 'Keychain', keyname)
   let keyFile = null
   try {
     keyFile = await fs.read(path)
-    if(keyFile !== null){
+    if (keyFile === '') {
+      keyFile = null // overwrite an empty key file
+    }
+    if (keyFile !== null){
       console.log("🗝️ Got existing private key")
     }
   } catch(err) {

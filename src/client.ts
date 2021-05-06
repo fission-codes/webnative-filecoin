@@ -1,13 +1,35 @@
 import axios from 'axios'
-import { CID } from 'webnative/ipfs'
+import { CID } from 'webnative/dist/ipfs'
+import * as setup from './setup'
 import { Address, SignedMessage, MessageBody, WalletInfo, Receipt } from './types'
 
-const API_URL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:3000/api/v1/filecoin'
-  : 'https://cosigner.runfission.com/api/v1/filecoin'
+const API_URL = 'http://localhost:3000/api/v1/filecoin'
 
-export const cosignMessage = async (message: SignedMessage): Promise<Receipt> => {
-  const resp = await axios.post(`${API_URL}/message`, { message })
+// const API_URL = 'https://cosigner.runfission.com/api/v1/filecoin'
+
+// const API_URL = process.env.NODE_ENV === 'development'
+//   ? 'http://localhost:3000/api/v1/filecoin'
+//   : 'https://cosigner.runfission.com/api/v1/filecoin'
+
+
+export const setAuth = (newToken: string | null): void => {
+  console.log("SETTING AUTH: ", newToken)
+  axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+}
+
+export const cosignMessage = async (message: SignedMessage, prf: string): Promise<Receipt> => {
+  const wn = setup.getWebnative()
+  const decoded = wn.ucan.decode(prf)
+  const ucan = await wn.ucan.build({
+    addSignature: true,
+    audience: 'server',
+    resource: decoded.payload.rsc,
+    potency: decoded.payload.ptc,
+    proof: prf
+  })
+  const encoded = wn.ucan.encode(ucan)
+  const headers = { Authorization: `Bearer ${encoded}`}
+  const resp = await axios.post(`${API_URL}/message`, { message }, { headers })
   return resp.data
 }
 

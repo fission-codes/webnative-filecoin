@@ -1,9 +1,11 @@
 export type Address = string
 
 export type WalletInfo = {
+  aggPubKey: string
   address: string
   balance: number 
   providerBalance: number
+  providerAddress: string
 }
 
 export type SignedMessage = {

@@ -39,13 +39,17 @@ export const formatMessage = async (to: string, ownPubKey: string, amount: numbe
 }
 
 export const getAggregatedAddress = async (publicKey: string): Promise<Address> => {
-  const resp = await axios.get(`${API_URL}/address?ownPubKey=${publicKey}`)
+  const resp = await axios.get(`${API_URL}/address?publicKey=${publicKey}`)
   return resp.data
 }
 
-export const getWalletInfo = async (publicKey: string): Promise<WalletInfo> => {
-  const resp = await axios.get(`${API_URL}/wallet?ownPubKey=${publicKey}`)
-  return resp.data
+export const getWalletInfo = async (publicKey: string): Promise<WalletInfo | null> => {
+  try{
+    const resp = await axios.get(`${API_URL}/wallet?publicKey=${publicKey}`)
+    return resp.data
+  } catch(err) {
+    return null
+  }
 }
 
 export const getProviderAddress = async (): Promise<Address> => {
@@ -63,19 +67,9 @@ export const getBalance = async (address: string): Promise<number> => {
   return resp.data.balance
 }
 
-export const createKeypair = async (publicKey: string): Promise<WalletInfo> => {
-  const resp = await axios.post(`${API_URL}/keypair`, { publicKey })
+export const createKeypair = async (publicKey: string, rootDid: string): Promise<WalletInfo> => {
+  const resp = await axios.post(`${API_URL}/keypair`, { publicKey, rootDid })
   return resp.data
-}
-
-export const getOrCreateWallet = async (publicKey: string): Promise<WalletInfo> => {
-  let wallet: WalletInfo
-  try {
-    wallet = await getWalletInfo(publicKey)
-  } catch(err) {
-    wallet = await createKeypair(publicKey)
-  }
-  return wallet
 }
 
 export const waitForReceipt = async (messageId: string): Promise<Receipt> => {

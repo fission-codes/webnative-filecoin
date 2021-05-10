@@ -6,10 +6,12 @@ import { keyBy } from 'lodash'
 import { CID } from 'webnative/dist/ipfs'
 import * as setup from './setup'
 import * as util from './util'
+import { KeyType } from 'webnative/dist/did'
 
 type ConstructorParams = {
   privKey: string
   pubKey: string
+  aggPubKey: string
   address: string
   providerAddress: string
   balance: number
@@ -23,6 +25,7 @@ export class Wallet {
 
   private privKey: string
   pubKey: string
+  aggPubKey: string
   address: string
   providerAddress: string
   balance: number
@@ -31,9 +34,10 @@ export class Wallet {
   receipts: { [cid: string]: Receipt }
   ucan: string | null
 
-  constructor({ privKey, pubKey, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
+  constructor({ privKey, pubKey, aggPubKey, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
     this.privKey = privKey
     this.pubKey = pubKey
+    this.aggPubKey = aggPubKey
     this.address = address
     this.providerAddress = providerAddress
     this.balance = balance
@@ -44,18 +48,24 @@ export class Wallet {
   }
 
   static async create(privKey: string, requestPermission = true): Promise<Wallet> {
+    const wn = setup.getWebnative()
     const pubKey = keys.privToPub(privKey)
-    const [providerAddress, walletInfo] = await Promise.all([
-      client.getProviderAddress(),
-      client.getOrCreateWallet(pubKey)
-    ])
-    const { address, balance, providerBalance } = walletInfo
+
+    let walletInfo = await client.getWalletInfo(pubKey)
+
+    if (walletInfo === null) {
+      const rootDid = await wn.did.ownRoot()
+      walletInfo = await client.createKeypair(pubKey, rootDid)
+    }
+
+    const { aggPubKey, address, balance, providerBalance, providerAddress } = walletInfo
 
     let ucan = null
     if(requestPermission) {
-      await requestCosignPermissions(address)
-      const dict = setup.getWebnative().ucanInternal.getDictionary()
-      ucan = dict[`cosign:${address}`] || null
+      const did = wn.did.publicKeyToDid(aggPubKey, KeyType.BLS)
+      await requestCosignPermissions(did)
+      const dict = wn.ucanInternal.getDictionary()
+      ucan = dict[`cosign:${did}`] || null
     }
 
 
@@ -67,6 +77,7 @@ export class Wallet {
     const wallet = new Wallet({
       privKey,
       pubKey,
+      aggPubKey,
       address,
       providerAddress,
       balance,

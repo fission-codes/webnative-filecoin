@@ -51,17 +51,40 @@ export const pubBufToAddress = (publicKey: Buffer): string => {
   return filecoinAddress.encode('t', rawAddress)
 }
 
+export const addressToPubKey = (address: string): string => {
+  const rawAddress = filecoinAddress.newFromString(address)
+  return Buffer.from(rawAddress.payload()).toString('hex')
+}
+
 export const privToAddress = (privateHex: string): string => {
   const publicKeyBuffer = privToPubBuf(privateHex)
   return pubBufToAddress(publicKeyBuffer)
 }
 
-export const pubBufToAggAddress = (
-  pubkey1: Buffer,
-  pubkey2: Buffer
+export const aggKeyBufs = (
+  key1: Buffer,
+  key2: Buffer
+): Buffer => {
+  const aggPubkey = bls.aggregatePublicKeys([key1, key2])
+  return Buffer.from(aggPubkey)
+}
+
+export const aggKeys = (
+  key1: string,
+  key2: string
 ): string => {
-  const aggPubkey = bls.aggregatePublicKeys([pubkey1, pubkey2])
-  return pubBufToAddress(Buffer.from(aggPubkey))
+  const pubkey1 = Buffer.from(key1, 'hex')
+  const pubkey2 = Buffer.from(key2, 'hex')
+  const aggPubkey = aggKeyBufs(pubkey1, pubkey2)
+  return aggPubkey.toString('hex')
+}
+
+export const pubBufToAggAddress = (
+  key1: Buffer,
+  key2: Buffer
+): string => {
+  const aggPubkey = aggKeyBufs(key1, key2)
+  return pubBufToAddress(aggPubkey)
 }
 
 export const privToAggAddress = (key1: string, key2: string): string => {

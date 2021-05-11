@@ -64,8 +64,7 @@ export class Wallet {
     if(requestPermission) {
       const did = wn.did.publicKeyToDid(aggPubKey, KeyType.BLS)
       await requestCosignPermissions(did)
-      const dict = wn.ucanInternal.getDictionary()
-      ucan = dict[`cosign:${did}`] || null
+      ucan = wn.ucan.dictionary.lookup(`cosign:${did}`) || null
     }
 
 

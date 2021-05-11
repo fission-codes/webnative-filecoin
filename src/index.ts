@@ -1,6 +1,7 @@
-import Wallet from './wallet'
 import * as wn from 'webnative'
 import FileSystem from 'webnative/dist/fs'
+import Wallet from './wallet'
+import * as setup from './setup'
 import { genKeyFile } from './util'
 import { DEFAULT_KEY_NAME } from './constants'
 import { isKeyFile } from './types'
@@ -13,7 +14,8 @@ export * from './types'
 export * from './constants'
 export * as setup from './setup'
 
-export const getWallet = async (fs: FileSystem, keyname = DEFAULT_KEY_NAME): Promise<Wallet> => {
+export const getWallet = async (fs: FileSystem, wnImpl: typeof wn, keyname = DEFAULT_KEY_NAME): Promise<Wallet> => {
+  setup.webnative(wnImpl)
   const path = wn.path.file('private', 'Keychain', keyname)
   let keyFile = null
   try {
@@ -40,8 +42,4 @@ export const getWallet = async (fs: FileSystem, keyname = DEFAULT_KEY_NAME): Pro
   }
 
   return Wallet.create(keyFile.privateKey)
-}
-
-export const getWalletFromKey = async(key: string): Promise<Wallet> => {
-  return Wallet.create(key)
 }

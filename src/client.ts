@@ -3,9 +3,10 @@ import { CID } from 'webnative/dist/ipfs'
 import * as setup from './setup'
 import { Address, SignedMessage, MessageBody, WalletInfo, Receipt } from './types'
 
-const API_URL = 'http://localhost:3000/api/v1/filecoin'
+const SERVER_DID = 'did:key:z2AHoGyfRQZ3Zdf8BJiTr7KJpFbzrif6NbFP7rutAcsHHQ3pbzecLF5VfdPpGuQ57cPYcBKAkHjrWnbARcaXGfokLC5i2L4XKCSrDtg'
 
-// const API_URL = 'https://cosigner.runfission.com/api/v1/filecoin'
+// const API_URL = 'http://localhost:3000/api/v1/filecoin'
+const API_URL = 'https://cosigner.runfission.com/api/v1/filecoin'
 
 // const API_URL = process.env.NODE_ENV === 'development'
 //   ? 'http://localhost:3000/api/v1/filecoin'
@@ -22,7 +23,7 @@ export const cosignMessage = async (message: SignedMessage, prf: string): Promis
   const decoded = wn.ucan.decode(prf)
   const ucan = await wn.ucan.build({
     addSignature: true,
-    audience: 'server',
+    audience: SERVER_DID,
     resource: decoded.payload.rsc,
     potency: decoded.payload.ptc,
     proof: prf

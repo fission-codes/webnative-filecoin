@@ -33,18 +33,14 @@ const state = await wn.initialise({
 })
 // Do necessary state checks / redirects
 
-// Pass the filesystem to webnative-filecoin
-const wallet = await getWallet(state.fs) // if using a keyName other than the default, pass that as a second param
+// Pass the filesystem to webnative-filecoin as well as your implementation of wn
+const wallet = await getWallet(state.fs, wn) // if using a keyName other than the default, pass that as a third param
 // Fund the Fission storage provider
 const receipt = await wallet.fundProvider(1)
 // Send FIL to an arbitrary address
 const receipt2 = await wallet.send('t1hx...', 1)
 // Wait for tx to be confirmed on Filecoin network
 const verifiedReceipt = await wallet.waitForReceipt(receipt.messageId)
-
-
-// Alternately, instantiate a wallet with a 256-bit hex private key
-const wallet = await getWalletFromKey('3cf423b87b7fd25e1d252565e6a397f4712cc61750073fadc25ee738ff8c9055')
 ```
 
 # Development

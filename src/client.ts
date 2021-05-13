@@ -5,18 +5,13 @@ import { Address, SignedMessage, MessageBody, WalletInfo, Receipt } from './type
 
 const SERVER_DID = 'did:key:z2AHoGyfRQZ3Zdf8BJiTr7KJpFbzrif6NbFP7rutAcsHHQ3pbzecLF5VfdPpGuQ57cPYcBKAkHjrWnbARcaXGfokLC5i2L4XKCSrDtg'
 
-// const API_URL = 'http://localhost:3000/api/v1/filecoin'
-const API_URL = 'https://cosigner.runfission.com/api/v1/filecoin'
+const API_URL = 'http://localhost:3000/api/v1/filecoin'
+// const API_URL = 'https://cosigner.runfission.com/api/v1/filecoin'
 
 // const API_URL = process.env.NODE_ENV === 'development'
 //   ? 'http://localhost:3000/api/v1/filecoin'
 //   : 'https://cosigner.runfission.com/api/v1/filecoin'
 
-
-export const setAuth = (newToken: string | null): void => {
-  console.log("SETTING AUTH: ", newToken)
-  axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-}
 
 export const cosignMessage = async (message: SignedMessage, prf: string): Promise<Receipt> => {
   const wn = setup.getWebnative()
@@ -68,8 +63,8 @@ export const getBalance = async (address: string): Promise<number> => {
   return resp.data.balance
 }
 
-export const createKeypair = async (publicKey: string, rootDid: string): Promise<WalletInfo> => {
-  const resp = await axios.post(`${API_URL}/keypair`, { publicKey, rootDid })
+export const createWallet = async (publicKey: string, rootDid: string): Promise<WalletInfo> => {
+  const resp = await axios.post(`${API_URL}/wallet`, { publicKey, rootDid })
   return resp.data
 }
 

@@ -14,7 +14,13 @@ export * from './types'
 export * from './constants'
 export * as setup from './setup'
 
-export const getWallet = async (fs: FileSystem, wnImpl: typeof wn, keyname = DEFAULT_KEY_NAME): Promise<Wallet> => {
+type WalletOptions = {
+  keyname?: string
+  requestPermission?: boolean
+}
+
+export const getWallet = async (fs: FileSystem, wnImpl: typeof wn, opts?: Partial<WalletOptions>): Promise<Wallet> => {
+  const { keyname = DEFAULT_KEY_NAME, requestPermission = false } = opts || {}
   setup.webnative(wnImpl)
   const path = wn.path.file('private', 'Keychain', keyname)
   let keyFile = null
@@ -41,5 +47,5 @@ export const getWallet = async (fs: FileSystem, wnImpl: typeof wn, keyname = DEF
     console.log("🔑 Created new private key")
   }
 
-  return Wallet.create(keyFile.privateKey)
+  return Wallet.create(keyFile.privateKey, requestPermission)
 }

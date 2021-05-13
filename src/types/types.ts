@@ -61,3 +61,7 @@ export type KeyFile = {
   publicKey: string
   type: string
 }
+
+export interface HasDid {
+  did: string
+}

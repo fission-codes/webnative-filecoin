@@ -1,7 +1,12 @@
 import { RawPermission } from 'webnative/dist/ucan/permissions'
 import * as setup from './setup'
+import { HasDid } from './types'
 
-export const requestCosignPermissions = async (did: string): Promise<void> => {
+export const requestCosignPermissions = async (hasDid: HasDid): Promise<void> => {
+  return requestCosignPermissionsForDid(hasDid.did)
+}
+
+export const requestCosignPermissionsForDid = async (did: string): Promise<void> => {
   const wn = setup.getWebnative()
   const state = await wn.initialise({
     loadFileSystem: false,

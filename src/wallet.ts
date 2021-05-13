@@ -1,7 +1,7 @@
 import * as keys from './keys'
 import * as client from './client'
-import { requestCosignPermissions } from './permissions'
-import { Receipt, MessageBody, MessageStatus } from './types'
+import { requestCosignPermissionsForDid } from './permissions'
+import { Receipt, MessageBody, MessageStatus, HasDid } from './types'
 import { keyBy } from 'lodash'
 import { CID } from 'webnative/dist/ipfs'
 import * as setup from './setup'
@@ -12,6 +12,7 @@ type ConstructorParams = {
   privKey: string
   pubKey: string
   aggPubKey: string
+  did: string
   address: string
   providerAddress: string
   balance: number
@@ -21,11 +22,12 @@ type ConstructorParams = {
   ucan: string | null
 }
 
-export class Wallet {
+export class Wallet implements HasDid {
 
   private privKey: string
   pubKey: string
   aggPubKey: string
+  did: string
   address: string
   providerAddress: string
   balance: number
@@ -34,10 +36,11 @@ export class Wallet {
   receipts: { [cid: string]: Receipt }
   ucan: string | null
 
-  constructor({ privKey, pubKey, aggPubKey, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
+  constructor({ privKey, pubKey, aggPubKey, did, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
     this.privKey = privKey
     this.pubKey = pubKey
     this.aggPubKey = aggPubKey
+    this.did = did
     this.address = address
     this.providerAddress = providerAddress
     this.balance = balance
@@ -47,7 +50,7 @@ export class Wallet {
     this.ucan = ucan
   }
 
-  static async create(privKey: string, requestPermission = true): Promise<Wallet> {
+  static async create(privKey: string, requestPermission = false): Promise<Wallet> {
     const wn = setup.getWebnative()
     const pubKey = keys.privToPub(privKey)
 
@@ -55,28 +58,28 @@ export class Wallet {
 
     if (walletInfo === null) {
       const rootDid = await wn.did.ownRoot()
-      walletInfo = await client.createKeypair(pubKey, rootDid)
+      walletInfo = await client.createWallet(pubKey, rootDid)
     }
 
     const { aggPubKey, address, balance, providerBalance, providerAddress } = walletInfo
 
-    let ucan = null
+    const did = wn.did.publicKeyToDid(aggPubKey, KeyType.BLS)
+
     if(requestPermission) {
-      const did = wn.did.publicKeyToDid(aggPubKey, KeyType.BLS)
-      await requestCosignPermissions(did)
-      ucan = wn.ucan.dictionary.lookup(`cosign:${did}`) || null
+      await requestCosignPermissionsForDid(did)
     }
 
+    const ucan = wn.ucan.dictionary.lookup(`cosign:${did}`) || null
 
     const receiptsList = await client.getPastReciepts(pubKey)
     const receipts = keyBy(receiptsList, 'messageId')
-
     const blockheight = await client.getBlockHeight()
 
     const wallet = new Wallet({
       privKey,
       pubKey,
       aggPubKey,
+      did,
       address,
       providerAddress,
       balance,
@@ -87,7 +90,6 @@ export class Wallet {
     })
 
     wallet.keepBlockHeightInSync()
-
 
     return wallet
   }

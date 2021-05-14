@@ -22,7 +22,7 @@ export const requestCosignPermissionsForDid = async (did: string): Promise<void>
 }
 
 export const rawPermissions = (did: string): RawPermission => ({
-  exp: Date.now() + 60000,
+  exp: Math.floor(Date.now() / 1000) + 3600, // 1hr
   rsc: { 
     cosign: did
   },
@@ -32,3 +32,17 @@ export const rawPermissions = (did: string): RawPermission => ({
     }
   }
 })
+
+export const findUcan = (did: string): string | null => {
+  const wn = setup.getWebnative()
+  const ucan = wn.ucan.dictionary.lookup(`cosign:${did}`)
+  if(!ucan) return null
+  const decoded = wn.ucan.decode(ucan)
+  return wn.ucan.isExpired(decoded) ? null : ucan
+}
+
+export const msTilExpire = (ucan: string): number => {
+  const wn = setup.getWebnative()
+  const decoded = wn.ucan.decode(ucan)
+  return decoded.payload.exp * 1000 - Date.now()
+} 

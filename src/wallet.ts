@@ -1,6 +1,6 @@
 import * as keys from './keys'
 import * as client from './client'
-import { requestCosignPermissionsForDid } from './permissions'
+import { msTilExpire, findUcan, requestCosignPermissionsForDid } from './permissions'
 import { Receipt, MessageBody, MessageStatus, HasDid } from './types'
 import { keyBy } from 'lodash'
 import { CID } from 'webnative/dist/ipfs'
@@ -35,6 +35,7 @@ export class Wallet implements HasDid {
   blockheight: number
   receipts: { [cid: string]: Receipt }
   ucan: string | null
+  private expireCB: (() => unknown) | null = null
 
   constructor({ privKey, pubKey, aggPubKey, did, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
     this.privKey = privKey
@@ -66,10 +67,11 @@ export class Wallet implements HasDid {
     const did = wn.did.publicKeyToDid(aggPubKey, KeyType.BLS)
 
     if(requestPermission) {
+      console.log("request permissions")
       await requestCosignPermissionsForDid(did)
     }
 
-    const ucan = wn.ucan.dictionary.lookup(`cosign:${did}`) || null
+    const ucan = findUcan(did)
 
     const receiptsList = await client.getPastReciepts(pubKey)
     const receipts = keyBy(receiptsList, 'messageId')
@@ -89,6 +91,7 @@ export class Wallet implements HasDid {
       ucan
     })
 
+    wallet.startExpireTimer()
     wallet.keepBlockHeightInSync()
 
     return wallet
@@ -173,6 +176,29 @@ export class Wallet implements HasDid {
       setTimeout(verify, 300000)
     }
     verify()
+  }
+
+  async requestPermissions(): Promise<void> {
+    await requestCosignPermissionsForDid(this.did)
+  }
+
+  msTilExpire(): number | null {
+    return this.ucan !== null ? msTilExpire(this.ucan) : null
+  }
+
+  private startExpireTimer(): void {
+    if (this.ucan !== null) {
+      const toWait = msTilExpire(this.ucan)
+      console.log(toWait)
+      setTimeout(() => {
+        this.ucan = null
+        if (this.expireCB !== null) this.expireCB()
+      }, toWait)
+    }
+  }
+
+  onExpire(cb: () => unknown): void {
+    this.expireCB = cb
   }
 }
 

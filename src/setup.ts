@@ -25,7 +25,6 @@ export const server = (update: Partial<ServerVars>): void => {
     ...serverVars,
     ...update
   }
-  console.log('serverVars: ', serverVars)
 }
 
 export const getServerUrl = (): string => {

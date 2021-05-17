@@ -1,3 +1,4 @@
+import { Ucan } from 'webnative/dist/ucan'
 import { RawPermission } from 'webnative/dist/ucan/permissions'
 import * as setup from './setup'
 import { HasDid } from './types'
@@ -33,16 +34,28 @@ export const rawPermissions = (did: string): RawPermission => ({
   }
 })
 
-export const findUcan = (did: string): string | null => {
+export const findUcan = (did: string): Ucan | null => {
   const wn = setup.getWebnative()
   const ucan = wn.ucan.dictionary.lookup(`cosign:${did}`)
   if(!ucan) return null
   const decoded = wn.ucan.decode(ucan)
-  return wn.ucan.isExpired(decoded) ? null : ucan
+  return wn.ucan.isExpired(decoded) ? null : decoded
 }
 
-export const msTilExpire = (ucan: string): number => {
-  const wn = setup.getWebnative()
-  const decoded = wn.ucan.decode(ucan)
-  return decoded.payload.exp * 1000 - Date.now()
+export const msTilExpire = (ucan: Ucan): number => {
+  return ucan.payload.exp * 1000 - Date.now()
 } 
+
+export const withinSpendLimit = (amount: number, ucan: Ucan): boolean => {
+  const ptc = ucan.payload.ptc
+  if(ptc === null || ptc === undefined) return false
+  if(ptc === '*') return true
+  if(typeof ptc !== 'object') return false
+  const fil = ptc['fil']
+  if(fil === null || fil === undefined) return false
+  if(fil === '*') return true
+  if(typeof fil !== 'object') return false
+  const max = (fil as any)['max']
+  if(typeof max !== 'number') return false
+  return max >= amount
+}

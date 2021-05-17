@@ -1,18 +1,18 @@
 import axios from 'axios'
 import { CID } from 'webnative/dist/ipfs'
+import { Ucan } from 'webnative/dist/ucan'
 import { getWebnative, getServerUrl, getServerDid } from './setup'
 import { Address, SignedMessage, MessageBody, WalletInfo, Receipt } from './types'
 
 
-export const cosignMessage = async (message: SignedMessage, prf: string): Promise<Receipt> => {
+export const cosignMessage = async (message: SignedMessage, prf: Ucan): Promise<Receipt> => {
   const wn = getWebnative()
-  const decoded = wn.ucan.decode(prf)
   const ucan = await wn.ucan.build({
     addSignature: true,
     audience: getServerDid(),
-    resource: decoded.payload.rsc,
-    potency: decoded.payload.ptc,
-    proof: prf
+    resource: prf.payload.rsc,
+    potency: prf.payload.ptc,
+    proof: wn.ucan.encode(prf)
   })
   const encoded = wn.ucan.encode(ucan)
   const headers = { Authorization: `Bearer ${encoded}`}

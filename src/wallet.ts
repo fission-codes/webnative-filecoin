@@ -1,9 +1,10 @@
 import * as keys from './keys'
 import * as client from './client'
-import { msTilExpire, findUcan, requestCosignPermissionsForDid } from './permissions'
+import { msTilExpire, findUcan, requestCosignPermissionsForDid, withinSpendLimit } from './permissions'
 import { Receipt, MessageBody, MessageStatus, HasDid } from './types'
 import { keyBy } from 'lodash'
 import { CID } from 'webnative/dist/ipfs'
+import { Ucan } from 'webnative/dist/ucan'
 import * as setup from './setup'
 import * as util from './util'
 import { KeyType } from 'webnative/dist/did'
@@ -19,7 +20,7 @@ type ConstructorParams = {
   providerBalance: number
   blockheight: number
   receipts: { [cid: string]: Receipt }
-  ucan: string | null
+  ucan: Ucan | null
 }
 
 export class Wallet implements HasDid {
@@ -34,7 +35,7 @@ export class Wallet implements HasDid {
   providerBalance: number
   blockheight: number
   receipts: { [cid: string]: Receipt }
-  ucan: string | null
+  ucan: Ucan | null
   private expireCB: (() => unknown) | null = null
 
   constructor({ privKey, pubKey, aggPubKey, did, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
@@ -128,6 +129,7 @@ export class Wallet implements HasDid {
   async send(address: string, amount: number): Promise<Receipt> {
     if(amount > this.balance) throw new Error("Not enough funds")
     if(this.ucan === null) throw new Error("No valid ucan, request permission first")
+    if(!withinSpendLimit(amount, this.ucan)) throw new Error('Transaction size exceeds spend limit')
     const msg = await this.formatMessage(address, amount)
     const signed = await keys.signLotusMessage(msg, this.privKey)
     const receipt = await client.cosignMessage(signed, this.ucan)

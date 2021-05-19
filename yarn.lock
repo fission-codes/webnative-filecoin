@@ -1331,9 +1331,9 @@
   integrity sha512-XYmBiy+ohOR4Lh5jE379fV2IU+6Jn4g5qASinhitfyO71b/sCo6MKsMLF5tc7Zf2CE8hViVQyYSobJNke8OvUw==
 
 "@types/node@>=13.7.0":
-  version "15.0.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-15.0.2.tgz#51e9c0920d1b45936ea04341aa3e2e58d339fb67"
-  integrity sha512-p68+a+KoxpoB47015IeYZYRrdqMUcpbK8re/zpFB8Ld46LHC1lPEbp3EXgkEhAYEcPvjJF6ZO+869SQ0aH1dcA==
+  version "15.3.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-15.3.0.tgz#d6fed7d6bc6854306da3dea1af9f874b00783e26"
+  integrity sha512-8/bnjSZD86ZfpBsDlCIkNXIvm+h6wi9g7IqL+kmFkQ+Wvu3JrasgLElfiPgoo8V8vVfnEi0QVS12gbl94h9YsQ==
 
 "@types/node@^13.7.4":
   version "13.13.48"
@@ -6988,10 +6988,10 @@ webidl-conversions@^4.0.2:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
 
-webnative@0.24.2-alpha-2:
-  version "0.24.2-alpha-2"
-  resolved "https://registry.yarnpkg.com/webnative/-/webnative-0.24.2-alpha-2.tgz#d9da53cf9f8a23f3536c7a7113d21b62fa175ec3"
-  integrity sha512-TY2603grSzUwSsRKBIofn5/A9Jh3xtBwhk2uxiio14SAtH4vwSa2K4xXVEjBM89MfuqAZCReKTWXpioMXaQeIg==
+webnative@0.25.2:
+  version "0.25.2"
+  resolved "https://registry.yarnpkg.com/webnative/-/webnative-0.25.2.tgz#470e44485bf3c702603bc8a83a2c1267b48c2ede"
+  integrity sha512-KRyvtdtsWj6tlji8qbXa6fJKCq/jThUamIFbSbr/+/2E1kSxhlR+cxqLKnQR8drl/tcfeHunc8Aj27gTtHDp0g==
   dependencies:
     base58-universal "^1.0.0"
     borc "^2.1.1"

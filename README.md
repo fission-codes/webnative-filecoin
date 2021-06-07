@@ -1,3 +1,4 @@
+![](https://raw.githubusercontent.com/fission-suite/kit/6a20e9af963dd000903b1c6e64f9fbb2102ba472/images/badge-solid-colored.svg)
 # Webnative Filecoin
 
 [![NPM](https://img.shields.io/npm/v/webnative)](https://www.npmjs.com/package/webnative-filecoin)

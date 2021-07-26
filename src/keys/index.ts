@@ -2,6 +2,7 @@ import filecoinAddress from '@glif/filecoin-address'
 import * as filTools from './serialization'
 import * as bls from 'noble-bls12-381'
 import { SignedMessage, MessageBody } from '../types'
+import { getNetworkPrefix } from '../setup'
 
 export const normalizeToHex = (
   hexOrBuf: string | Buffer | Uint8Array
@@ -26,8 +27,8 @@ export const signLotusMessage = async (
     Message: message,
     Signature: {
       Data: sig,
-      Type: 2,
-    },
+      Type: 2
+    }
   }
 }
 
@@ -48,7 +49,7 @@ export const pubToAddress = (publicHex: string): string => {
 
 export const pubBufToAddress = (publicKey: Buffer): string => {
   const rawAddress = filecoinAddress.newBLSAddress(publicKey)
-  return filecoinAddress.encode('t', rawAddress)
+  return filecoinAddress.encode(getNetworkPrefix(), rawAddress)
 }
 
 export const addressToPubKey = (address: string): string => {
@@ -61,28 +62,19 @@ export const privToAddress = (privateHex: string): string => {
   return pubBufToAddress(publicKeyBuffer)
 }
 
-export const aggKeyBufs = (
-  key1: Buffer,
-  key2: Buffer
-): Buffer => {
+export const aggKeyBufs = (key1: Buffer, key2: Buffer): Buffer => {
   const aggPubkey = bls.aggregatePublicKeys([key1, key2])
   return Buffer.from(aggPubkey)
 }
 
-export const aggKeys = (
-  key1: string,
-  key2: string
-): string => {
+export const aggKeys = (key1: string, key2: string): string => {
   const pubkey1 = Buffer.from(key1, 'hex')
   const pubkey2 = Buffer.from(key2, 'hex')
   const aggPubkey = aggKeyBufs(pubkey1, pubkey2)
   return aggPubkey.toString('hex')
 }
 
-export const pubBufToAggAddress = (
-  key1: Buffer,
-  key2: Buffer
-): string => {
+export const pubBufToAggAddress = (key1: Buffer, key2: Buffer): string => {
   const aggPubkey = aggKeyBufs(key1, key2)
   return pubBufToAddress(aggPubkey)
 }
@@ -100,7 +92,7 @@ export const pubToAggAddress = (key1: string, key2: string): string => {
 }
 
 export const aggregateSigs = (sig1B64: string, sig2B64: string): string => {
-  const sigs = [sig1B64, sig2B64].map((s) => Buffer.from(s, 'base64'))
+  const sigs = [sig1B64, sig2B64].map(s => Buffer.from(s, 'base64'))
   const aggSig = bls.aggregateSignatures(sigs)
   return Buffer.from(aggSig).toString('base64')
 }

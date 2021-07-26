@@ -35,6 +35,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
     "test:prod": "npm run lint && npm run test -- --no-cache",
+    "prepare": "npm run build",
     "precommit": "lint-staged",
     "travis-deploy-once": "travis-deploy-once"
   },

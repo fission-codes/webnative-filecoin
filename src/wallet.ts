@@ -1,6 +1,11 @@
 import * as keys from './keys'
 import * as client from './client'
-import { msTilExpire, findUcan, requestCosignPermissionsForDid, withinSpendLimit } from './permissions'
+import {
+  msTilExpire,
+  findUcan,
+  requestCosignPermissionsForDid,
+  withinSpendLimit
+} from './permissions'
 import { Receipt, MessageBody, MessageStatus, HasDid } from './types'
 import { keyBy } from 'lodash'
 import { CID } from 'webnative/dist/ipfs'
@@ -24,7 +29,6 @@ type ConstructorParams = {
 }
 
 export class Wallet implements HasDid {
-
   private privKey: string
   pubKey: string
   aggPubKey: string
@@ -38,7 +42,19 @@ export class Wallet implements HasDid {
   ucan: Ucan | null
   private expireCB: (() => unknown) | null = null
 
-  constructor({ privKey, pubKey, aggPubKey, did, address, providerAddress, balance, providerBalance, blockheight, receipts, ucan }: ConstructorParams) {
+  constructor({
+    privKey,
+    pubKey,
+    aggPubKey,
+    did,
+    address,
+    providerAddress,
+    balance,
+    providerBalance,
+    blockheight,
+    receipts,
+    ucan
+  }: ConstructorParams) {
     this.privKey = privKey
     this.pubKey = pubKey
     this.aggPubKey = aggPubKey
@@ -52,23 +68,35 @@ export class Wallet implements HasDid {
     this.ucan = ucan
   }
 
-  static async create(privKey: string, requestPermission = false): Promise<Wallet> {
+  static async create(
+    privKey: string,
+    requestPermission = false
+  ): Promise<Wallet> {
     const wn = setup.getWebnative()
     const pubKey = keys.privToPub(privKey)
 
     let walletInfo = await client.getWalletInfo(pubKey)
 
     if (walletInfo === null) {
-      const rootDid = await wn.did.ownRoot()
+      const username = await wn.authenticatedUsername()
+      if (!username) {
+        throw new Error('User not logged in.')
+      }
+      const rootDid = await wn.did.root(username)
       walletInfo = await client.createWallet(pubKey, rootDid)
     }
 
-    const { aggPubKey, address, balance, providerBalance, providerAddress } = walletInfo
+    const {
+      aggPubKey,
+      address,
+      balance,
+      providerBalance,
+      providerAddress
+    } = walletInfo
 
     const did = wn.did.publicKeyToDid(aggPubKey, KeyType.BLS)
 
-    if(requestPermission) {
-      console.log("request permissions")
+    if (requestPermission) {
       await requestCosignPermissionsForDid(did)
     }
 
@@ -122,14 +150,16 @@ export class Wallet implements HasDid {
   }
 
   async formatMessage(address: string, amount: number): Promise<MessageBody> {
-    if(amount > this.balance) throw new Error("Not enough funds")
+    if (amount > this.balance) throw new Error('Not enough funds')
     return client.formatMessage(address, this.pubKey, amount)
   }
 
   async send(address: string, amount: number): Promise<Receipt> {
-    if(amount > this.balance) throw new Error("Not enough funds")
-    if(this.ucan === null) throw new Error("No valid ucan, request permission first")
-    if(!withinSpendLimit(amount, this.ucan)) throw new Error('Transaction size exceeds spend limit')
+    if (amount > this.balance) throw new Error('Not enough funds')
+    if (this.ucan === null)
+      throw new Error('No valid ucan, request permission first')
+    if (!withinSpendLimit(amount, this.ucan))
+      throw new Error('Transaction size exceeds spend limit')
     const msg = await this.formatMessage(address, amount)
     const signed = await keys.signLotusMessage(msg, this.privKey)
     const receipt = await client.cosignMessage(signed, this.ucan)
@@ -137,13 +167,16 @@ export class Wallet implements HasDid {
     return receipt
   }
 
-  async waitForReceipt(messageId: CID, status = MessageStatus.Partial): Promise<Receipt> {
+  async waitForReceipt(
+    messageId: CID,
+    status = MessageStatus.Partial
+  ): Promise<Receipt> {
     // wait 10s between polling for first confirmation & 2 min for final verification
-    const waitTime = status === MessageStatus.Partial ? 10000 : 120000 
+    const waitTime = status === MessageStatus.Partial ? 10000 : 120000
     const getStatus = async (): Promise<Receipt> => {
       const receipt = await this.getMessageStatus(messageId)
       this.receipts[receipt.messageId] = receipt
-      if(receipt.status >= status) {
+      if (receipt.status >= status) {
         return receipt
       }
       await util.wait(waitTime)
@@ -156,7 +189,7 @@ export class Wallet implements HasDid {
     return client.getMessageStatus(messageId)
   }
 
-  async fundProvider(amount: number):  Promise<Receipt> {
+  async fundProvider(amount: number): Promise<Receipt> {
     return this.send(this.providerAddress, amount)
   }
 

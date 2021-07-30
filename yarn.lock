@@ -5005,9 +5005,9 @@ noble-bls12-381@^0.9.0:
   integrity sha512-D04HbbvdxcLkRlcl1GAGk1vu0Hoe2ZtfadaFfL6CqW4mFV890magfIh0duzmb9yaB2BH21e+KmZc5HXjQe9sQw==
 
 noble-ed25519@^1.0.4:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/noble-ed25519/-/noble-ed25519-1.2.1.tgz#6aadb1fa57e054f40483d71d470c70c0fddc0917"
-  integrity sha512-5ZoYpKxQtyQHVk8GHsAr1BsM91ogFuuIsJkKM116t4PxqJRZrBkg1i33wUu852Minr9+CDR8jqPRrhQ/l+msbQ==
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/noble-ed25519/-/noble-ed25519-1.2.5.tgz#ed6dde9213debcf121083d18daecb30bb6416753"
+  integrity sha512-7vst+4UhM5QU3jJ3pUqPMKBCOePrxBojmoQa59qcSnYvjFF/T4jqb4WISlfslcWyBw7G5H9V/acpcAxMd8DzUQ==
 
 node-addon-api@^2.0.0:
   version "2.0.2"

@@ -1,13 +1,17 @@
-![](https://raw.githubusercontent.com/fission-suite/kit/6a20e9af963dd000903b1c6e64f9fbb2102ba472/images/badge-solid-colored.svg)
-# Webnative Filecoin
+<div align="center">
+  <img src="https://github.com/fission-codes/kit/blob/main/images/logo-icon-coloured.png?raw=true" width="100" />
 
-[![NPM](https://img.shields.io/npm/v/webnative)](https://www.npmjs.com/package/webnative-filecoin)
-[![Build Status](https://travis-ci.org/fission-suite/webnative-fielcoin.svg?branch=master)](https://travis-ci.org/fission-suite/webnative-filecoin)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/fission-suite/blob/master/LICENSE)
-[![Maintainability](https://api.codeclimate.com/v1/badges/b06e29f811583d24009a/maintainability)](https://codeclimate.com/github/fission-suite/webnative-filecoin/maintainability)
-[![Built by FISSION](https://img.shields.io/badge/⌘-Built_by_FISSION-purple.svg)](https://fission.codes)
-[![Discord](https://img.shields.io/discord/478735028319158273.svg)](https://discord.gg/zAQBDEq)
-[![Discourse](https://img.shields.io/discourse/https/talk.fission.codes/topics)](https://talk.fission.codes)
+  <h1>Webnative Filecoin</h1>
+
+  [![NPM](https://img.shields.io/npm/v/webnative)](https://www.npmjs.com/package/webnative-filecoin)
+  [![Build Status](https://travis-ci.org/fission-suite/webnative-fielcoin.svg?branch=master)](https://travis-ci.org/fission-suite/webnative-filecoin)
+  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/fission-suite/blob/master/LICENSE)
+  [![Maintainability](https://api.codeclimate.com/v1/badges/b06e29f811583d24009a/maintainability)](https://codeclimate.com/github/fission-suite/webnative-filecoin/maintainability)
+  [![Built by FISSION](https://img.shields.io/badge/⌘-Built_by_FISSION-purple.svg)](https://fission.codes)
+  [![Discord](https://img.shields.io/discord/478735028319158273.svg)](https://discord.gg/zAQBDEq)
+  [![Discourse](https://img.shields.io/discourse/https/talk.fission.codes/topics)](https://talk.fission.codes)
+</div>
+
 
 Send secure Filecoin transactions from the browser.
 
